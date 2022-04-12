@@ -12,22 +12,20 @@ def get_ticket(db: Session, id: int) -> Ticket:
 
 def create_ticket(db: Session, ticket: TicketCreate) -> Ticket:
     db_ticket = Ticket(title=ticket.title, 
-                        email=ticket.email, 
-                        description=ticket.description)
+                       email=ticket.email, 
+                       description=ticket.description)
     db.add(db_ticket)
     db.commit()
     db.refresh(db_ticket)
     return db_ticket
 
 def update_ticket(db: Session, ticket_id: int, ticket: TicketUpdate) -> Ticket:
-    db_ticket = db.query(Ticket).filter(Ticket.id == ticket_id).one_or_none()
-
+    db_ticket = db.get(Ticket, ticket_id)
     if not db_ticket:
         return None
-
-    for var, value in vars(ticket).items():
-        setattr(db_ticket, var, value) if value else None
-
+    ticket_data = ticket.dict(exclude_unset=True)
+    for key, value in ticket_data.items():
+        setattr(db_ticket, key, value) if value else None
     db.add(db_ticket)
     db.commit()
     db.refresh(db_ticket)

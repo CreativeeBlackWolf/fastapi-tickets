@@ -9,6 +9,7 @@ from db.database import Base
 class TicketStates(enum.Enum):
     opened = "opened"
     on_review = "on review"
+    answered = "answered"
     closed = "closed"
 
 

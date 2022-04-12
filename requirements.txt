@@ -17,6 +17,8 @@ six==1.16.0
 sniffio==1.2.0
 SQLAlchemy==1.4.35
 SQLAlchemy-Utils==0.38.2
+sqlalchemy2-stubs==0.0.2a21
+sqlmodel==0.0.6
 starlette==0.17.1
 typing-extensions==4.1.1
 uvicorn==0.17.6

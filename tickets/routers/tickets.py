@@ -30,8 +30,8 @@ def get_single_ticket(pk: int, db: Session = Depends(get_db)):
 
 @router.put("/{pk}", response_model=Ticket, status_code=status.HTTP_200_OK)
 def update_ticket(pk: int, ticket: TicketUpdate, db: Session = Depends(get_db)):
-    ticket = crud.update_ticket(db, ticket=TicketUpdate, ticket_id=pk)
-    if not ticket:
+    new_ticket = crud.update_ticket(db, ticket=ticket, ticket_id=pk)
+    if not new_ticket:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail={"error": "incorrect ticket id"})
-    return ticket
+    return new_ticket
