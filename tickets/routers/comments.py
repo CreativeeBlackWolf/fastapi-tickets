@@ -12,13 +12,13 @@ from utils.message import ErrorMessage
 router = APIRouter(prefix="/comments",
                    responses={
                        400: {"model": ErrorMessage}
-                    },
-                    tags=["comments"])
+                   },
+                   tags=["comments"])
 
 
 @router.get("/", response_model=List[Comment])
-async def list_comments(db: Session = Depends(get_db), limit: int = 27):
-    return crud.get_comments(db, limit=limit)
+async def list_comments(limit: int = 27):
+    return await crud.get_comments(limit=limit)
 
 
 @router.post("/", response_model=Comment, status_code=status.HTTP_201_CREATED)

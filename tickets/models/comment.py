@@ -15,3 +15,5 @@ class Comment(Base):
     text = Column(String(), nullable=False)
 
     ticket = relationship("Ticket", back_populates="comments")
+
+comments = Comment.__table__

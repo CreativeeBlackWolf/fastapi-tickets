@@ -42,7 +42,13 @@ class Ticket(Base):
     updated_on = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     email = Column(EmailType, nullable=False)
     state = Column(ChoiceType(TicketStates), default=TicketStates.opened, nullable=False)
-    comments = relationship("Comment", back_populates="ticket", lazy="dynamic")
+    comments = relationship("Comment", 
+                            back_populates="ticket", 
+                            lazy="dynamic",
+                            viewonly=True,
+                            )
 
     def __repr__(self):
         return f"<Ticket(title={self.title})>"
+
+tickets = Ticket.__table__

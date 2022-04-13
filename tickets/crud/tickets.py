@@ -1,12 +1,17 @@
-from sqlalchemy.orm import Session
-from models.ticket import Ticket, TicketStates
+from sqlalchemy.orm import Session, Query
+from db.database import database
+from models.ticket import Ticket, TicketStates, tickets
+from models.comment import Comment
 from schemas.ticket import TicketCreate, TicketUpdate
 from typing import List, Union
 from utils.message import ErrorMessage
 
 
-def get_tickets(db: Session, limit: int = 27) -> List[Ticket]:
-    return db.query(Ticket).limit(limit).all()
+async def get_tickets(limit: int = 27) -> List[Ticket]:
+    query = Query(Ticket, Comment).select()
+    results = await database.fetch_all(query)
+    return results
+
 
 def get_ticket(db: Session, id: int) -> Ticket:
     return db.query(Ticket).filter(Ticket.id == id).one_or_none()

@@ -1,13 +1,15 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
-from models.comment import Comment
+from models.comment import Comment, comments
 from schemas.comment import CommentCreate
 from typing import List, Union
+from db.database import database
 from utils.message import ErrorMessage
 
 
-def get_comments(db: Session, limit: int = 27) -> List[Comment]:
-    return db.query(Comment).limit(limit).all()
+async def get_comments(limit: int = 27) -> List[Comment]:
+    query = comments.select().limit(limit)
+    return await database.fetch_all(query)
 
 
 def create_comment(db: Session, comment: CommentCreate) -> Union[Comment, ErrorMessage]:
