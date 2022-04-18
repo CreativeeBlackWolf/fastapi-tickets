@@ -1,6 +1,6 @@
 from asyncpg.exceptions import ForeignKeyViolationError
 from sqlalchemy import select, insert
-from models.comment import Comment, comments
+from models.comment import Comment
 from schemas.comment import CommentCreate
 from typing import List, Union
 from db.database import database
