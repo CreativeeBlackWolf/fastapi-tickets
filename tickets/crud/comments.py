@@ -1,6 +1,6 @@
 from asyncpg.exceptions import ForeignKeyViolationError
+from sqlalchemy import select, insert
 from models.comment import Comment, comments
-from models.ticket import Ticket, tickets
 from schemas.comment import CommentCreate
 from typing import List, Union
 from db.database import database
@@ -8,21 +8,21 @@ from utils.message import ErrorMessage
 
 
 async def get_comments(limit: int = 27) -> List[Comment]:
-    query = comments.select().limit(limit)
+    query = select(Comment).limit(limit)
     return await database.fetch_all(query)
 
 async def get_ticket_comments(pk: int) -> List[Comment]:
-    query = comments.select().where(Comment.ticket_id == pk)
+    query = select(Comment).where(Comment.ticket_id == pk)
     results = await database.fetch_all(query)
     return results
 
 async def get_comment(pk: int) -> Comment:
-    query = comments.select().where(Comment.id == pk)
+    query = select(Comment).where(Comment.id == pk)
     results = await database.fetch_one(query)
     return results
 
 async def create_comment(comment: CommentCreate) -> Union[Comment, ErrorMessage]:
-    query = comments.insert()\
+    query = insert(Comment)\
         .values(text=comment.text,
         ticket_id=comment.ticket_id,
         email=comment.email)
