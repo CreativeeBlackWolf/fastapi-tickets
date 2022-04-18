@@ -22,6 +22,7 @@ async def list_tickets(limit: int = 27):
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_ticket(ticket: TicketCreate):
     new_ticket = await crud.create_ticket(ticket=ticket)
+
     return new_ticket
 
 

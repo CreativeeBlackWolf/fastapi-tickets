@@ -36,8 +36,4 @@ async def create_comment(comment: CommentCreate):
                                 message="ticket is in closed state"
                                 ).dict()
                             )
-    
-    new_comment = await crud.create_comment(comment=comment)
-    raise_if_error(new_comment)
-
     return new_comment
