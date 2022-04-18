@@ -14,6 +14,8 @@ class Comment(Base):
     email = Column(EmailType, nullable=False)
     text = Column(String(), nullable=False)
 
-    ticket = relationship("Ticket", back_populates="comments")
+    ticket = relationship("Ticket", 
+                          back_populates="comments"
+                          )
 
 comments = Comment.__table__

@@ -1,6 +1,4 @@
 from datetime import datetime
-from typing import List, Optional
-from schemas.comment import Comment
 from models.ticket import TicketStates
 from pydantic import BaseModel, EmailStr
 from sqlmodel import SQLModel
@@ -26,4 +24,3 @@ class Ticket(TicketBase, OrmBase):
     updated_on: datetime
     email: EmailStr
     state: TicketStates
-    comments: Optional[List[Comment]]
