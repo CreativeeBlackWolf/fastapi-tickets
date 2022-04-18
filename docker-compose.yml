@@ -4,7 +4,7 @@ services:
   web:
     build:
       context: .
-    command: /bin/sh -c "uvicorn main:app --reload --host 0.0.0.0"
+    command: /bin/sh -c "uvicorn main:app --reload --host 0.0.0.0 --port 8000"
     volumes:
       - ./tickets:/tickets
     ports:
