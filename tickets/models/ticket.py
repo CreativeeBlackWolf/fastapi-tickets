@@ -21,13 +21,15 @@ class TicketStates(enum.Enum):
 
     @staticmethod
     def __priority(state: TicketStates):
-        return list(TicketStates).index(state)
+        return list(TicketStates).index(TicketStates(state))
 
     @classmethod
     def can_change_state(cls, fromState: TicketStates, toState: TicketStates) -> bool:
-        if fromState is cls.opened and toState is cls.pending: 
+        if fromState is cls.pending and toState is cls.answered:
+            return True
+        if fromState is cls.opened and toState is cls.pending:
             return False
-        if cls.__priority(fromState) >= cls.__priority(toState): 
+        if cls.__priority(fromState) >= cls.__priority(toState):
             return False
         return True
 
@@ -42,7 +44,14 @@ class Ticket(Base):
     updated_on = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     email = Column(EmailType, nullable=False)
     state = Column(ChoiceType(TicketStates), default=TicketStates.opened, nullable=False)
-    comments = relationship("Comment", back_populates="ticket", lazy="dynamic")
+    comments = relationship("Comment",
+                            back_populates="ticket",
+                            # lazy="dynamic",
+                            # primaryjoin="Ticket.id == Comment.ticket_id"
+                            )
 
     def __repr__(self):
         return f"<Ticket(title={self.title})>"
+
+
+tickets = Ticket.__table__

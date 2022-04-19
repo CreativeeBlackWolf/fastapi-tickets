@@ -1,7 +1,7 @@
 from functools import lru_cache
-
 import config
 import db.database as database
+
 
 def get_db():
     db = database.SessionLocal()
@@ -9,6 +9,7 @@ def get_db():
         yield db
     finally:
         db.close()
+
 
 @lru_cache
 def get_db_settings() -> config.DBSettings:

@@ -1,38 +1,57 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import select, insert, update
+from db.database import database
 from models.ticket import Ticket, TicketStates
 from schemas.ticket import TicketCreate, TicketUpdate
 from typing import List, Union
 from utils.message import ErrorMessage
 
 
-def get_tickets(db: Session, limit: int = 27) -> List[Ticket]:
-    return db.query(Ticket).limit(limit).all()
+async def get_tickets(limit: int = 27) -> List[Ticket]:
+    query = select(Ticket).limit(limit)
+    results = await database.fetch_all(query)
+    return results
 
-def get_ticket(db: Session, id: int) -> Ticket:
-    return db.query(Ticket).filter(Ticket.id == id).one_or_none()
 
-def create_ticket(db: Session, ticket: TicketCreate) -> Ticket:
-    db_ticket = Ticket(title=ticket.title, 
-                       email=ticket.email, 
-                       description=ticket.description)
-    db.add(db_ticket)
-    db.commit()
-    db.refresh(db_ticket)
-    return db_ticket
+async def get_ticket_state(ticket_id: int) -> Union[TicketStates, ErrorMessage]:
+    query = select(Ticket.state).where(Ticket.id == ticket_id)
+    result = await database.fetch_one(query)
+    if not result:
+        return ErrorMessage(message="incorrect ticket_id")
+    return result.get("state", default=None)
 
-def update_ticket(db: Session, ticket_id: int, ticket: TicketUpdate) -> Union[Ticket, ErrorMessage]:
-    db_ticket = db.get(Ticket, ticket_id)
-    if not db_ticket:
+
+async def get_ticket(id: int) -> Ticket:
+    query = select(Ticket).where(Ticket.id == id)
+    result = await database.fetch_one(query)
+    return result
+
+
+async def create_ticket(ticket: TicketCreate) -> Ticket:
+    query = insert(Ticket).values(title=ticket.title,
+                                  email=ticket.email,
+                                  description=ticket.description,
+                                  state=TicketStates.opened)
+    ticket_id = await database.execute(query)
+    return await get_ticket(ticket_id)
+
+
+async def update_ticket(ticket_id: int, ticket: TicketUpdate) -> Union[Ticket, ErrorMessage]:
+    old_ticket = await get_ticket(ticket_id)
+
+    # if ticket is not found
+    if not old_ticket:
         return ErrorMessage(message="incorrect ticket id")
-    ticket_data = ticket.dict(exclude_unset=True)
-    
-    # if we can't change state of ticket
-    if not TicketStates.can_change_state(db_ticket.state, ticket.state):
-        return ErrorMessage(message=f"cannot change state from {db_ticket.state} to {ticket.state}")
 
-    for key, value in ticket_data.items():
-        setattr(db_ticket, key, value) if value else None
-    db.add(db_ticket)
-    db.commit()
-    db.refresh(db_ticket)
-    return db_ticket
+    # old_ticket.state is string, so we should convert it
+    # to TicketStates
+    old_ticket_state = TicketStates(old_ticket.state)
+
+    # if we can't change state
+    if not TicketStates.can_change_state(old_ticket_state, ticket.state):
+        return ErrorMessage(message= \
+                                f"cannot change state from {old_ticket_state.value} to {ticket.state.value}")
+
+    query = update(Ticket).where(Ticket.id == ticket_id).values(**ticket.dict())
+    await database.execute(query)
+
+    return await get_ticket(ticket_id)
